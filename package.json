@@ -1,0 +1,14 @@
+{
+  "name": "vacci-voortgang",
+  "description": "vacci-voortgang",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "node tweet-progress.js"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "env-var": "^7.0.0",
+    "puppeteer": "^8.0.0",
+    "twitter": "^1.7.1"
+  }
+}
