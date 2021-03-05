@@ -23,7 +23,7 @@ async function scrape() {
   )
   const value = await page.evaluate(() => {
     let kpis = document.querySelectorAll('[class^=kpi-value]')
-    return kpis[0].textContent
+    return kpis[1].textContent
   })
   browser.close()
   return value.replace(/\./g, '')
