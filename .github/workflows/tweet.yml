@@ -1,9 +1,9 @@
 name: Tweet
 
-on: 
+on:
   workflow_dispatch:
   schedule:
-      - cron: '0 15,19 * * *' # Runs bot every day at 16:00 and 20:00 hours C.E.T.
+    - cron: "0 19 * * *" # Runs bot every day at 20:00 hours C.E.T.
 
 jobs:
   build:
@@ -13,7 +13,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: '16.x'
+          node-version: "16.x"
       - name: Install deps
         run: npm install
       - name: Run Bot
@@ -23,4 +23,3 @@ jobs:
           CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
-        
