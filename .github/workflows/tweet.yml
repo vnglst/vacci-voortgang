@@ -3,7 +3,7 @@ name: Tweet
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 19 * * *" # Runs bot every day at 20:00 hours C.E.T.
+    - cron: "0 17 * * 2" # Runs bot every Tuesday
 
 jobs:
   build:
