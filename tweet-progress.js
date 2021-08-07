@@ -35,8 +35,8 @@ async function scrape() {
       "[class='table table-striped-brand-lightest'] tr:last-child td"
     );
     return {
-      atLeastOne: tds[3].textContent.replace(/\./g, ""),
-      fully: tds[4].textContent.replace(/\./g, ""),
+      atLeastOne: tds[4].textContent.replace(/\./g, ""),
+      fully: tds[5].textContent.replace(/\./g, ""),
     };
   });
 
