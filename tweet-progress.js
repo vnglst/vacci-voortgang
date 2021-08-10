@@ -1,4 +1,6 @@
 require("dotenv").config();
+const Papa = require("papaparse");
+const fetch = require("node-fetch");
 
 const Twitter = require("twitter");
 const puppeteer = require("puppeteer");
@@ -22,41 +24,23 @@ const client = new Twitter({
   access_token_secret: ACCESS_TOKEN_SECRET,
 });
 
-async function scrape() {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-
-  await page.goto(
-    "https://www.rivm.nl/covid-19-vaccinatie/cijfers-vaccinatieprogramma"
+async function getData() {
+  const res = await fetch(
+    "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/country_data/Netherlands.csv"
   );
+  const csvStr = await res.text();
 
-  const result = await page.evaluate(() => {
-    const tableTrs = document.querySelectorAll(
-      "[class='table table-striped-brand-lightest'] tr"
-    );
+  const { data } = Papa.parse(csvStr);
+  const lastEntry = data[data.length - 2];
 
-    let rowWithTotals;
+  const atLeastOne = lastEntry[5];
+  const fully = lastEntry[6];
 
-    for (let tr of tableTrs) {
-      if (tr.textContent.startsWith("Totaal")) {
-        rowWithTotals = tr;
-      }
-    }
-
-    const cells = rowWithTotals.querySelectorAll("td");
-
-    return {
-      atLeastOne: cells[4].textContent.replace(/\./g, ""),
-      fully: cells[5].textContent.replace(/\./g, ""),
-    };
-  });
-
-  browser.close();
-  return result;
+  return { atLeastOne, fully };
 }
 
 async function main() {
-  const { atLeastOne, fully } = await scrape();
+  const { atLeastOne, fully } = await getData();
 
   const message =
     "Eén prik:\n" +
