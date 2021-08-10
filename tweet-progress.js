@@ -31,12 +31,23 @@ async function scrape() {
   );
 
   const result = await page.evaluate(() => {
-    let tds = document.querySelectorAll(
-      "[class='table table-striped-brand-lightest'] tr:last-child td"
+    const tableTrs = document.querySelectorAll(
+      "[class='table table-striped-brand-lightest'] tr"
     );
+
+    let rowWithTotals;
+
+    for (let tr of tableTrs) {
+      if (tr.textContent.startsWith("Totaal")) {
+        rowWithTotals = tr;
+      }
+    }
+
+    const cells = rowWithTotals.querySelectorAll("td");
+
     return {
-      atLeastOne: tds[4].textContent.replace(/\./g, ""),
-      fully: tds[5].textContent.replace(/\./g, ""),
+      atLeastOne: cells[4].textContent.replace(/\./g, ""),
+      fully: cells[5].textContent.replace(/\./g, ""),
     };
   });
 
