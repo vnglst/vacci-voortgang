@@ -1,9 +1,7 @@
 require("dotenv").config();
 const Papa = require("papaparse");
 const fetch = require("node-fetch");
-
 const Twitter = require("twitter");
-const puppeteer = require("puppeteer");
 const env = require("env-var");
 
 const POPULATION = 17_480_481;
