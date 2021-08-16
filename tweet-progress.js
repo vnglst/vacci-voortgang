@@ -32,7 +32,7 @@ async function getData() {
   const lastEntry = data[data.length - 2];
 
   const atLeastOne = lastEntry[1];
-  const fully = lastEntry[5];
+  const fully = lastEntry[2];
 
   return { atLeastOne, fully };
 }
@@ -54,11 +54,10 @@ async function main() {
         if (error) return console.error(error);
       }
     );
+    return `${message}`;
   } else {
     throw Error("Sanity check failed");
   }
-
-  return `${message}`;
 }
 
 function getProgressStr(vaccinatedPersons) {
