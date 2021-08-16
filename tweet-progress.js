@@ -31,8 +31,8 @@ async function getData() {
   const { data } = Papa.parse(csvStr);
   const lastEntry = data[data.length - 2];
 
-  const atLeastOne = lastEntry[5];
-  const fully = lastEntry[6];
+  const atLeastOne = lastEntry[1];
+  const fully = lastEntry[5];
 
   return { atLeastOne, fully };
 }
@@ -40,19 +40,23 @@ async function getData() {
 async function main() {
   const { atLeastOne, fully } = await getData();
 
-  const message =
-    "Eén prik:\n" +
-    getProgressStr(atLeastOne) +
-    "\n\nVolledig gevaccineerd:\n" +
-    getProgressStr(fully);
+  if (atLeastOne >= 65 && fully >= 57) {
+    const message =
+      "Eén prik:\n" +
+      getProgressStr(atLeastOne) +
+      "\n\nVolledig gevaccineerd:\n" +
+      getProgressStr(fully);
 
-  client.post(
-    "statuses/update",
-    { status: message },
-    async (error, tweet, response) => {
-      if (error) return console.error(error);
-    }
-  );
+    client.post(
+      "statuses/update",
+      { status: message },
+      async (error, tweet, response) => {
+        if (error) return console.error(error);
+      }
+    );
+  } else {
+    throw Error("Sanity check failed");
+  }
 
   return `${message}`;
 }
