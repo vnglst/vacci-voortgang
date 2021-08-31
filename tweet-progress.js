@@ -30,6 +30,10 @@ async function getData() {
 
   const { data } = Papa.parse(csvStr);
   const lastEntry = data[data.length - 2];
+  console.log(
+    "🚀 ~ file: tweet-progress.js ~ line 33 ~ getData ~ lastEntry",
+    lastEntry
+  );
 
   const atLeastOne = lastEntry[1];
   const fully = lastEntry[2];
@@ -68,7 +72,7 @@ function getProgressStr(vaccinatedPersons) {
   const progress = "".padStart(blocksDone, "X").padEnd(TOTAL_BLOCKS, "O");
   const niceProgress = progress.replaceAll("X", "🟩").replaceAll("O", "⬜️");
 
-  return `${niceProgress} ${percentage.toFixed(0)}%`;
+  return `${niceProgress} ${percentage.toFixed(2)}%`;
 }
 
 main().then(console.log);
