@@ -29,14 +29,10 @@ async function getData() {
   const csvStr = await res.text();
 
   const { data } = Papa.parse(csvStr);
-  const lastEntry = data[data.length - 2];
-  console.log(
-    "🚀 ~ file: tweet-progress.js ~ line 33 ~ getData ~ lastEntry",
-    lastEntry
-  );
+  const lastEntry = data.at(-3);
 
-  const atLeastOne = lastEntry[1];
   const fully = lastEntry[2];
+  const atLeastOne = lastEntry[3];
 
   return { atLeastOne, fully };
 }
@@ -44,7 +40,7 @@ async function getData() {
 async function main() {
   const { atLeastOne, fully } = await getData();
 
-  if (atLeastOne >= 65 && fully >= 57) {
+  if (atLeastOne >= 73 && fully >= 67) {
     const message =
       "Eén prik:\n" +
       getProgressStr(atLeastOne) +
