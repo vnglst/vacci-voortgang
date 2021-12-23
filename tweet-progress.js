@@ -28,24 +28,27 @@ async function getData() {
   );
   const csvStr = await res.text();
 
-  const { data } = Papa.parse(csvStr);
-  const lastEntry = data.at(-3);
+  const { data } = Papa.parse(csvStr, { header: true });
+  const lastEntry = data.at(-2);
 
-  const fully = lastEntry[2];
-  const atLeastOne = lastEntry[3];
+  const atLeastOne = lastEntry.people_vaccinated;
+  const fully = lastEntry.people_fully_vaccinated;
+  const boosters = lastEntry.total_boosters;
 
-  return { atLeastOne, fully };
+  return { atLeastOne, fully, boosters };
 }
 
 async function main() {
-  const { atLeastOne, fully } = await getData();
+  const { atLeastOne, fully, boosters } = await getData();
 
-  if (atLeastOne >= 73 && fully >= 67) {
+  if (atLeastOne >= 73 && fully >= 67 && boosters >= 8) {
     const message =
-      "Eén prik:\n" +
-      getProgressStr(atLeastOne) +
-      "\n\nVolledig gevaccineerd:\n" +
-      getProgressStr(fully);
+      "Eén prik (% totale populatie)\n" +
+      getProgressStr(atLeastOne, "🟨") +
+      "\n\nVolledig gevaccineerd\n" +
+      getProgressStr(fully, "🟩") +
+      "\n\nBoosted\n" +
+      getProgressStr(boosters, "🟦");
 
     client.post(
       "statuses/update",
@@ -60,13 +63,15 @@ async function main() {
   }
 }
 
-function getProgressStr(vaccinatedPersons) {
+function getProgressStr(vaccinatedPersons, completeChar = "🟩") {
   const percentage = (vaccinatedPersons / POPULATION) * 100;
   const blocksDone = Math.round((percentage / 100) * TOTAL_BLOCKS);
 
   // can't use padStart/End with unicode characters, using this work around
   const progress = "".padStart(blocksDone, "X").padEnd(TOTAL_BLOCKS, "O");
-  const niceProgress = progress.replaceAll("X", "🟩").replaceAll("O", "⬜️");
+  const niceProgress = progress
+    .replaceAll("X", completeChar)
+    .replaceAll("O", "⬜️");
 
   return `${niceProgress} ${percentage.toFixed(2)}%`;
 }
