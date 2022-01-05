@@ -46,7 +46,8 @@ async function main() {
 
   // only tweet if data was updated within the last day
   if (!isWithinLastDay(date)) {
-    throw new Error("No update within last day.");
+    console.log(`No new data available. Stopping.`);
+    return;
   }
 
   // sanity check if data is plausible
@@ -71,6 +72,7 @@ async function main() {
       if (error) return console.error(error);
     }
   );
+
   console.log(`Success! Tweeted: \n\n${message}`);
 }
 
