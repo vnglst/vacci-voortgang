@@ -4,7 +4,7 @@ const fetch = require("node-fetch");
 const Twitter = require("twitter");
 const env = require("env-var");
 
-const POPULATION = 17_480_481;
+const POPULATION = 17_670_291; // source: https://www.cbs.nl/nl-nl/visualisaties/dashboard-bevolking/bevolkingsteller
 const TOTAL_BLOCKS = 10;
 
 const CONSUMER_KEY = env.get("CONSUMER_KEY").required().asString();
@@ -31,36 +31,58 @@ async function getData() {
   const { data } = Papa.parse(csvStr, { header: true });
   const lastEntry = data.at(-2);
 
+  console.log("Most recent entry:", lastEntry);
+
+  const date = new Date(lastEntry.date);
   const atLeastOne = lastEntry.people_vaccinated;
   const fully = lastEntry.people_fully_vaccinated;
   const boosters = lastEntry.total_boosters;
 
-  return { atLeastOne, fully, boosters };
+  return { atLeastOne, fully, boosters, date };
 }
 
 async function main() {
-  const { atLeastOne, fully, boosters } = await getData();
+  const { atLeastOne, fully, boosters, date } = await getData();
 
-  if (atLeastOne >= 73 && fully >= 67 && boosters >= 8) {
-    const message =
-      "Eén prik (% totale populatie)\n" +
-      getProgressStr(atLeastOne, "🟨") +
-      "\n\nVolledig gevaccineerd\n" +
-      getProgressStr(fully, "🟩") +
-      "\n\nBoosted\n" +
-      getProgressStr(boosters, "🟦");
-
-    client.post(
-      "statuses/update",
-      { status: message },
-      async (error, tweet, response) => {
-        if (error) return console.error(error);
-      }
-    );
-    return `${message}`;
-  } else {
-    throw Error("Sanity check failed");
+  // only tweet if data was updated within the last day
+  if (!isWithinLastDay(date)) {
+    throw new Error("No update within last day.");
   }
+
+  // sanity check if data is plausible
+  if (!isPlausible(atLeastOne, fully, boosters)) {
+    throw Error("Sanity check failed!");
+  }
+
+  const message =
+    "Eén prik (% totale populatie)\n" +
+    getProgressStr(atLeastOne, "🟨") +
+    "\n\nVolledig gevaccineerd\n" +
+    getProgressStr(fully, "🟩") +
+    "\n\nBoosted\n" +
+    getProgressStr(boosters, "🟦") +
+    "\n\nPeildatum: " +
+    new Intl.DateTimeFormat("nl-NL").format(date);
+
+  client.post(
+    "statuses/update",
+    { status: message },
+    async (error, tweet, response) => {
+      if (error) return console.error(error);
+    }
+  );
+  console.log(`Success! Tweeted: \n\n${message}`);
+}
+
+function isWithinLastDay(date) {
+  const now = new Date();
+  const diffInMs = now.getTime() - date.getTime();
+  const diffInDays = Math.round(diffInMs / 1000 / 60 / 60 / 24);
+  return diffInDays < 1;
+}
+
+function isPlausible(atLeastOne, fully, boosters) {
+  return atLeastOne >= 73 && fully >= 67 && boosters >= 8;
 }
 
 function getProgressStr(vaccinatedPersons, completeChar = "🟩") {
@@ -76,4 +98,4 @@ function getProgressStr(vaccinatedPersons, completeChar = "🟩") {
   return `${niceProgress} ${percentage.toFixed(2)}%`;
 }
 
-main().then(console.log);
+main();
