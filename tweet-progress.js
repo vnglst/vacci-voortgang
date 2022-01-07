@@ -67,8 +67,13 @@ async function main() {
     getProgressStr(fully, "🟩") +
     "\n\nBoosted\n" +
     getProgressStr(boosters, "🟦") +
-    "\n\nPeildatum: " +
-    new Intl.DateTimeFormat("nl-NL").format(publishedDate);
+    "\n\nWaarde van " +
+    publishedDate.toLocaleDateString("nl-NL", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }) +
+    " · Bron: RIVM";
 
   client.post(
     "statuses/update",
