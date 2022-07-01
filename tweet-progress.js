@@ -55,10 +55,8 @@ async function main() {
     return;
   }
 
-  // sanity check if data is plausible
-  if (!isPlausible(atLeastOne, fully, boosters)) {
-    throw Error("Sanity check failed!");
-  }
+  // sanity check if data is plausible, throws if not
+  isPlausible(atLeastOne, fully, boosters);
 
   const message =
     "Eén prik (% totale populatie)\n" +
@@ -102,7 +100,29 @@ function getLastTweet() {
 }
 
 function isPlausible(atLeastOne, fully, boosters) {
-  return atLeastOne >= 73 && fully >= 67 && boosters >= 8;
+  if (atLeastOne < 0 || fully < 0 || boosters < 0) {
+    throw Error("[Sanity check] Number of people vaccinated is negative");
+  }
+
+  if (atLeastOne > POPULATION || fully > POPULATION || boosters > POPULATION) {
+    throw Error(
+      "[Sanity check] Number of people vaccinated higher than total population"
+    );
+  }
+
+  if (atLeastOne < fully) {
+    throw Error(
+      "[Sanity check] Number of people with at least one vaccination is lower than number of people fully vaccinated"
+    );
+  }
+
+  if (atLeastOne < 12_000_00 || fully < 11_000_00 || boosters < 9_000_00) {
+    throw Error(
+      "[Sanity check] Number of people vaccinated suddenly lower than expected"
+    );
+  }
+
+  return true;
 }
 
 function getProgressStr(vaccinatedPersons, completeChar = "🟩") {
